@@ -1,0 +1,239 @@
+<!-- ===== EEA 학습 위젯 v1 ===== -->
+<div class="eaw-root">
+  <div class="eaw-head">
+    <div class="eaw-title"></div>
+    <div class="eaw-ctrl">
+      <button class="eaw-speed" type="button">🐢 느리게</button>
+    </div>
+  </div>
+  <div class="eaw-tabs">
+    <button class="eaw-tab is-on" type="button" data-mode="study">학습</button>
+    <button class="eaw-tab" type="button" data-mode="quiz">빈칸 퀴즈</button>
+    <button class="eaw-tab" type="button" data-mode="dict">받아쓰기</button>
+  </div>
+  <div class="eaw-body"></div>
+  <div class="eaw-foot"></div>
+</div>
+
+<style>
+.eaw-root{--eaw-a:#2f6fed;--eaw-bd:#e3e6ec;--eaw-bg:#fff;--eaw-mut:#6b7280;
+  max-width:720px;margin:24px auto;border:1px solid var(--eaw-bd);border-radius:14px;
+  background:var(--eaw-bg);box-shadow:0 2px 10px rgba(0,0,0,.05);overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  color:#1b1f27;line-height:1.6;font-size:16px}
+.eaw-root *{box-sizing:border-box}
+.eaw-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:14px 16px;background:#f7f8fa;border-bottom:1px solid var(--eaw-bd)}
+.eaw-title{font-weight:700;font-size:16px}
+.eaw-speed{border:1px solid var(--eaw-bd);background:#fff;border-radius:999px;
+  padding:5px 11px;font-size:13px;cursor:pointer;color:var(--eaw-mut)}
+.eaw-speed.is-on{background:var(--eaw-a);border-color:var(--eaw-a);color:#fff}
+.eaw-tabs{display:flex;border-bottom:1px solid var(--eaw-bd);background:#fff}
+.eaw-tab{flex:1;border:0;background:none;padding:12px 4px;font-size:15px;font-weight:600;
+  color:var(--eaw-mut);cursor:pointer;border-bottom:2px solid transparent}
+.eaw-tab.is-on{color:var(--eaw-a);border-bottom-color:var(--eaw-a)}
+.eaw-body{padding:16px}
+.eaw-item{padding:13px 0;border-bottom:1px dashed var(--eaw-bd)}
+.eaw-item:last-child{border-bottom:0}
+.eaw-en{font-size:17px;font-weight:600;letter-spacing:.1px}
+.eaw-en b{color:var(--eaw-a);border-bottom:2px solid #cfe0ff}
+.eaw-ko{color:var(--eaw-mut);font-size:14px;margin-top:3px}
+.eaw-tip{margin-top:7px;background:#f4f7ff;border-left:3px solid var(--eaw-a);
+  border-radius:0 8px 8px 0;padding:8px 11px;font-size:13.5px;color:#33415c}
+.eaw-play{border:1px solid var(--eaw-bd);background:#fff;border-radius:8px;
+  padding:4px 9px;font-size:13px;cursor:pointer;margin-right:8px;vertical-align:middle}
+.eaw-play:hover{border-color:var(--eaw-a);color:var(--eaw-a)}
+.eaw-blank{border:0;border-bottom:2px solid var(--eaw-a);background:#f7f9ff;
+  font-size:16px;font-weight:600;padding:2px 6px;min-width:80px;font-family:inherit;
+  color:#1b1f27;outline:none;text-align:center}
+.eaw-blank.ok{border-color:#16a34a;background:#f0fdf4;color:#15803d}
+.eaw-blank.no{border-color:#dc2626;background:#fef2f2;color:#b91c1c}
+.eaw-ans{font-size:13px;color:#15803d;margin-top:4px;display:none}
+.eaw-line{font-size:16px;line-height:2.1}
+.eaw-bank{display:flex;flex-wrap:wrap;gap:7px;padding:12px;background:#f7f8fa;
+  border-radius:10px;margin-bottom:14px}
+.eaw-chip{border:1px solid var(--eaw-bd);background:#fff;border-radius:999px;
+  padding:5px 12px;font-size:14px;cursor:pointer}
+.eaw-chip:hover{border-color:var(--eaw-a);color:var(--eaw-a)}
+.eaw-chip.used{opacity:.35}
+.eaw-dinput{width:100%;margin-top:7px;padding:9px 11px;border:1px solid var(--eaw-bd);
+  border-radius:9px;font-size:16px;font-family:inherit;outline:none}
+.eaw-dinput:focus{border-color:var(--eaw-a)}
+.eaw-dinput.ok{border-color:#16a34a;background:#f0fdf4}
+.eaw-dinput.no{border-color:#dc2626;background:#fef2f2}
+.eaw-foot{display:flex;align-items:center;gap:9px;padding:13px 16px;
+  border-top:1px solid var(--eaw-bd);background:#f7f8fa;flex-wrap:wrap}
+.eaw-btn{border:0;background:var(--eaw-a);color:#fff;border-radius:9px;
+  padding:9px 17px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.eaw-btn.sub{background:#fff;color:var(--eaw-mut);border:1px solid var(--eaw-bd)}
+.eaw-score{margin-left:auto;font-weight:700;font-size:14.5px;color:var(--eaw-a)}
+@media(max-width:520px){.eaw-root{margin:18px 0;border-radius:12px}
+  .eaw-en{font-size:16px}.eaw-body{padding:13px}}
+</style>
+
+<script>
+(function(){
+/* ══════════ 여기만 매 포스팅마다 교체하세요 ══════════ */
+const LESSON = {
+  title: "아침 루틴 ① 세수하기",
+  sentences: [
+    { en:"I [[turn on]] the faucet.", ko:"수도꼭지를 튼다.",
+      tip:"수도꼭지는 tap(영국)보다 faucet(미국)이 자연스럽습니다." },
+    { en:"I [[splash]] water on my face.", ko:"얼굴에 물을 끼얹는다.",
+      tip:"'물을 끼얹다'는 splash. put water on my face는 어색합니다." },
+    { en:"I [[squeeze]] some cleanser into my palm.", ko:"세안제를 손바닥에 짠다.",
+      tip:"튜브에서 짜내는 동작은 squeeze out." },
+    { en:"I [[lather]] it up.", ko:"거품을 낸다.", tip:"lather = 비누 거품을 내다." },
+    { en:"I [[rinse]] my face with warm water.", ko:"미지근한 물로 헹군다.",
+      tip:"wash와 달리 rinse는 '헹궈내다'입니다." },
+    { en:"I [[pat]] my face dry with a towel.", ko:"수건으로 얼굴을 눌러 닦는다.",
+      tip:"비비지 않고 톡톡 두드리는 건 pat dry. rub은 문질러 닦는 것." },
+    { en:"I [[wring out]] the towel.", ko:"수건을 짠다.",
+      tip:"물기를 비틀어 짜는 동작이 wring out." },
+    { en:"I [[hang]] the towel on the rack.", ko:"수건을 걸이에 건다.",
+      tip:"수건걸이는 towel rack 또는 towel bar." }
+  ]
+};
+/* ══════════════════════════════════════════════════ */
+
+const root=[].slice.call(document.querySelectorAll('.eaw-root'))
+  .filter(function(e){return !e.dataset.init}).pop();
+if(!root) return;
+root.dataset.init='1';
+
+const body=root.querySelector('.eaw-body'),
+      foot=root.querySelector('.eaw-foot'),
+      spd =root.querySelector('.eaw-speed');
+root.querySelector('.eaw-title').textContent=LESSON.title;
+
+let mode='study', slow=false, lastInput=null;
+const esc=function(s){return String(s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+const parts=function(en){return en.split(/(\[\[[^\]]+\]\])/).filter(Boolean)
+  .map(function(t){return /^\[\[/.test(t)
+    ? {b:true, v:t.slice(2,-2)} : {b:false, v:t};});};
+const plain=function(en){return en.replace(/\[\[|\]\]/g,'');};
+const norm =function(s){return s.toLowerCase().replace(/[.,!?;:"]/g,'')
+  .replace(/\s+/g,' ').trim();};
+
+function speak(t){
+  if(!window.speechSynthesis) return alert('이 브라우저는 음성 재생을 지원하지 않습니다.');
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang='en-US'; u.rate=slow?0.65:0.95;
+  const v=speechSynthesis.getVoices().filter(function(x){return /en[-_]US/i.test(x.lang);})[0];
+  if(v) u.voice=v;
+  speechSynthesis.speak(u);
+}
+if(window.speechSynthesis) speechSynthesis.getVoices();
+
+spd.onclick=function(){slow=!slow;spd.classList.toggle('is-on',slow);
+  spd.textContent=slow?'🐢 느리게 ON':'🐢 느리게';};
+
+function render(){
+  lastInput=null;
+  if(mode==='study') renderStudy();
+  else if(mode==='quiz') renderQuiz();
+  else renderDict();
+}
+
+function renderStudy(){
+  body.innerHTML=LESSON.sentences.map(function(s,i){
+    const en=parts(s.en).map(function(p){
+      return p.b?'<b>'+esc(p.v)+'</b>':esc(p.v);}).join('');
+    return '<div class="eaw-item"><div class="eaw-en">'
+      +'<button class="eaw-play" type="button" data-i="'+i+'">🔊</button>'+en+'</div>'
+      +'<div class="eaw-ko">'+esc(s.ko)+'</div>'
+      +(s.tip?'<div class="eaw-tip">💡 '+esc(s.tip)+'</div>':'')+'</div>';
+  }).join('');
+  foot.innerHTML='<button class="eaw-btn" type="button" data-act="all">▶ 전체 듣기</button>'
+    +'<span class="eaw-score">문장 '+LESSON.sentences.length+'개</span>';
+}
+
+function renderQuiz(){
+  const bank=LESSON.sentences.reduce(function(a,s){
+    return a.concat(parts(s.en).filter(function(p){return p.b;})
+      .map(function(p){return p.v;}));},[]);
+  for(let i=bank.length-1;i>0;i--){const j=~~(Math.random()*(i+1));
+    const t=bank[i];bank[i]=bank[j];bank[j]=t;}
+  body.innerHTML='<div class="eaw-bank">'+bank.map(function(w){
+      return '<button class="eaw-chip" type="button">'+esc(w)+'</button>';}).join('')
+    +'</div>'+LESSON.sentences.map(function(s,i){
+      const line=parts(s.en).map(function(p){
+        return p.b
+          ? '<input class="eaw-blank" type="text" data-a="'+esc(p.v)+'" '
+            +'style="width:'+Math.max(6,p.v.length+3)+'ch">'
+          : esc(p.v);}).join('');
+      return '<div class="eaw-item"><div class="eaw-line">'
+        +'<button class="eaw-play" type="button" data-i="'+i+'">🔊</button>'+line+'</div>'
+        +'<div class="eaw-ko">'+esc(s.ko)+'</div>'
+        +'<div class="eaw-ans">정답: '+esc(plain(s.en))+'</div></div>';
+    }).join('');
+  foot.innerHTML='<button class="eaw-btn" type="button" data-act="check">채점하기</button>'
+    +'<button class="eaw-btn sub" type="button" data-act="reset">다시 풀기</button>'
+    +'<span class="eaw-score"></span>';
+}
+
+function renderDict(){
+  body.innerHTML=LESSON.sentences.map(function(s,i){
+    return '<div class="eaw-item">'
+      +'<button class="eaw-play" type="button" data-i="'+i+'">🔊 듣기</button>'
+      +'<span class="eaw-ko">'+esc(s.ko)+'</span>'
+      +'<input class="eaw-dinput" type="text" data-a="'+esc(plain(s.en))+'" '
+      +'placeholder="들은 문장을 입력하세요">'
+      +'<div class="eaw-ans">정답: '+esc(plain(s.en))+'</div></div>';
+  }).join('');
+  foot.innerHTML='<button class="eaw-btn" type="button" data-act="check">채점하기</button>'
+    +'<button class="eaw-btn sub" type="button" data-act="reset">다시 풀기</button>'
+    +'<span class="eaw-score"></span>';
+}
+
+function check(){
+  const sel=mode==='quiz'?'.eaw-blank':'.eaw-dinput';
+  const ins=[].slice.call(body.querySelectorAll(sel));
+  let ok=0;
+  ins.forEach(function(el){
+    const good=norm(el.value)===norm(el.dataset.a);
+    el.classList.remove('ok','no'); el.classList.add(good?'ok':'no');
+    if(good) ok++;
+  });
+  [].forEach.call(body.querySelectorAll('.eaw-item'),function(it){
+    const bad=it.querySelector(sel+'.no'), a=it.querySelector('.eaw-ans');
+    if(a) a.style.display=bad?'block':'none';
+  });
+  const sc=foot.querySelector('.eaw-score');
+  const pct=Math.round(ok/ins.length*100);
+  sc.textContent=ok+' / '+ins.length+'  ('+pct+'점)'+(pct===100?' 🎉':'');
+}
+
+root.addEventListener('click',function(e){
+  const t=e.target;
+  if(t.classList.contains('eaw-tab')){
+    [].forEach.call(root.querySelectorAll('.eaw-tab'),function(b){
+      b.classList.toggle('is-on',b===t);});
+    mode=t.dataset.mode; render(); return;
+  }
+  if(t.classList.contains('eaw-play')){
+    speak(plain(LESSON.sentences[+t.dataset.i].en)); return;
+  }
+  if(t.classList.contains('eaw-chip')){
+    const box=lastInput||body.querySelector('.eaw-blank:not([value]), .eaw-blank');
+    const empty=[].slice.call(body.querySelectorAll('.eaw-blank'))
+      .filter(function(i){return !i.value;})[0];
+    const target=(lastInput&&!lastInput.value)?lastInput:(empty||box);
+    if(target){target.value=t.textContent;target.focus();}
+    t.classList.add('used'); return;
+  }
+  const act=t.dataset.act;
+  if(act==='check') check();
+  else if(act==='reset') render();
+  else if(act==='all'){
+    speak(LESSON.sentences.map(function(s){return plain(s.en);}).join('. '));
+  }
+});
+body.addEventListener('focusin',function(e){
+  if(e.target.classList.contains('eaw-blank')) lastInput=e.target;
+});
+render();
+})();
+</script>
